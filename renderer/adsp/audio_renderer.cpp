@@ -105,7 +105,7 @@ void AudioRenderer::Start(AudioRenderer_Mailbox* mailbox_) {
     }
 
     mailbox = mailbox_;
-    thread = std::jthread([this](std::stop_token stop_token) { ThreadFunc(stop_token); });
+    thread = std::thread(&AudioRenderer::ThreadFunc, this);
     running = true;
 }
 
@@ -131,7 +131,7 @@ void AudioRenderer::CreateSinkStreams() {
     }
 }
 
-void AudioRenderer::ThreadFunc(std::stop_token stop_token) {
+void AudioRenderer::ThreadFunc() {
     static constexpr char name[]{"AudioRenderer"};
     MicroProfileOnThreadCreate(name);
     Common::SetCurrentThreadName(name);
@@ -146,7 +146,7 @@ void AudioRenderer::ThreadFunc(std::stop_token stop_token) {
 
     constexpr u64 max_process_time{2'304'000ULL};
 
-    while (!stop_token.stop_requested()) {
+    while (true) {
         auto message{mailbox->ADSPWaitMessage()};
         switch (message) {
         case RenderMessage::AudioRenderer_Shutdown:
@@ -194,7 +194,7 @@ void AudioRenderer::ThreadFunc(std::stop_token stop_token) {
                     max_time = std::min(command_buffer.time_limit, max_time);
                     command_list_processor.SetProcessTimeMax(max_time);
 
-                    streams[index]->WaitFreeSpace(stop_token);
+                    streams[index]->WaitFreeSpace();
 
                     // Process the command list
                     {
