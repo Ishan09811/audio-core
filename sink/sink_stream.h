@@ -13,6 +13,7 @@
 
 #include <audio_core/common/common.h>
 #include <audio_core/common/common_types.h>
+#include <audio_core/common/polyfill_thread.h>
 #include <audio_core/common/reader_writer_queue.h>
 #include <audio_core/common/ring_buffer.h>
 #include <audio_core/common/thread.h>
@@ -210,7 +211,7 @@ public:
     /**
      * Waits for free space in the sample ring buffer
      */
-    void WaitFreeSpace();
+    void WaitFreeSpace(std::stop_token stop_token);
 
 protected:
     /// Core system
@@ -252,7 +253,7 @@ private:
     /// Set via IAudioDevice service calls
     f32 device_volume{1.0f};
     /// Signalled when ring buffer entries are consumed
-    std::condition_variable release_cv;
+    std::condition_variable_any release_cv;
     std::mutex release_mutex;
 };
 
