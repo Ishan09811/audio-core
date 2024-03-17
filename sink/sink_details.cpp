@@ -8,7 +8,7 @@
 
 #include <audio_core/sink/sink_details.h>
 #ifdef HAVE_OBOE
-#include "audio_core/sink/oboe_sink.h"
+#include <audio_core/sink/oboe_sink.h>
 #endif
 #ifdef HAVE_CUBEB
 #include <audio_core/sink/cubeb_sink.h>
