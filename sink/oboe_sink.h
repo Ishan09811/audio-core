@@ -6,7 +6,7 @@
 #include <list>
 #include <string>
 
-#include <audio_core/sink/sink.h>
+#include "audio_core/sink/sink.h"
 
 namespace Core {
 class System;

@@ -6,11 +6,12 @@
 
 #include <oboe/Oboe.h>
 
-#include <audio_core/common/common.h>
-#include <audio_core/sink/oboe_sink.h>
-#include <audio_core/sink/sink_stream.h>
-#include <audio_core/common/logging/log.h>
-#include <core/core.h>
+#include "audio_core/common/common.h"
+#include "audio_core/sink/oboe_sink.h"
+#include "audio_core/sink/sink_stream.h"
+#include "common/logging/log.h"
+#include "common/scope_exit.h"
+#include "core/core.h"
 
 namespace AudioCore::Sink {
 
