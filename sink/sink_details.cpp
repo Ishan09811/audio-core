@@ -84,7 +84,7 @@ const SinkDetails& GetOutputSinkDetails(std::string_view sink_id) {
         LOG_INFO(Service_Audio, "Auto-selecting the {} backend", iter->id);
     } else {
         if (iter != std::end(sink_details) && !iter->is_suitable()) {
-            LOG_ERROR(Service_Audio, "Selected backend {} is not suitable, falling back to null",
+            LOG_ERROR(Service_Audio, "Selected backend {} is not suitable, falling back to null", iter->id);
                 iter = find_backend("null");
      }
 
