@@ -7,9 +7,6 @@
 #include <vector>
 
 #include <audio_core/sink/sink_details.h>
-#ifdef HAVE_OBOE
-#include "audio_core/sink/oboe_sink.h"
-#endif
 #ifdef HAVE_CUBEB
 #include <audio_core/sink/cubeb_sink.h>
 #endif
@@ -38,16 +35,6 @@ struct SinkDetails {
 
 // sink_details is ordered in terms of desirability, with the best choice at the top.
 constexpr SinkDetails sink_details[] = {
-#ifdef HAVE_OBOE
-    SinkDetails{
-        "oboe",
-        [](std::string_view device_id) -> std::unique_ptr<Sink> {
-            return std::make_unique<OboeSink>();
-        },
-        [](bool capture) { return std::vector<std::string>{"Default"}; },
-        []() { return true; },
-    },
-#endif
 #ifdef HAVE_CUBEB
     SinkDetails{
         "cubeb",
@@ -86,8 +73,8 @@ const SinkDetails& GetOutputSinkDetails(std::string_view sink_id) {
     if (sink_id == "auto") {
         // Auto-select a backend. Prefer CubeB, but it may report a large minimum latency which
         // causes audio issues, in that case go with SDL.
-#if defined(HAVE_OBOE) && defined(HAVE_SDL2)
-        iter = find_backend("oboe");
+#if defined(HAVE_CUBEB) && defined(HAVE_SDL2)
+        iter = find_backend("cubeb");
         if (iter->latency() > TargetSampleCount * 3) {
             iter = find_backend("sdl2");
         }

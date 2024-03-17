@@ -216,14 +216,6 @@ endif()
 target_link_libraries(audio_core PUBLIC fmt::fmt)
 
 target_sources(audio_core PRIVATE
-        sink/oboe_sink.cpp
-        sink/oboe_sink.h
-    )
-
-target_link_libraries(audio_core PRIVATE oboe)
-target_compile_definitions(audio_core PRIVATE HAVE_OBOE)
-
-target_sources(audio_core PRIVATE
     sink/cubeb_sink.cpp
     sink/cubeb_sink.h
 )
