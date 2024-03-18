@@ -21,7 +21,7 @@ namespace {
 struct SinkDetails {
     using FactoryFn = std::unique_ptr<Sink> (*)(std::string_view);
     using ListDevicesFn = std::vector<std::string> (*)(bool);
-    using LatencyFn = u32 (*)();
+    using SuitableFn = bool (*)();
 
     /// Name for this sink.
     std::string_view id;
@@ -29,8 +29,8 @@ struct SinkDetails {
     FactoryFn factory;
     /// A method to call to list available devices.
     ListDevicesFn list_devices;
-    /// Method to get the latency of this backend.
-    LatencyFn latency;
+    /// Check whether this backend is suitable to be used.
+    SuitableFn is_suitable;
 };
 
 // sink_details is ordered in terms of desirability, with the best choice at the top.
@@ -42,7 +42,7 @@ constexpr SinkDetails sink_details[] = {
             return std::make_unique<CubebSink>(device_id);
         },
         &ListCubebSinkDevices,
-        &GetCubebLatency,
+        &IsCubebSuitable,
     },
 #endif
 #ifdef HAVE_SDL2
@@ -52,14 +52,16 @@ constexpr SinkDetails sink_details[] = {
             return std::make_unique<SDLSink>(device_id);
         },
         &ListSDLSinkDevices,
-        &GetSDLLatency,
+        &IsSDLSuitable,
     },
 #endif
     SinkDetails{"null",
                 [](std::string_view device_id) -> std::unique_ptr<Sink> {
-                    return std::make_unique<NullSink>(device_id);
-                },
-                [](bool capture) { return std::vector<std::string>{"null"}; }, []() { return 0u; }},
+            return std::make_unique<NullSink>(device_id);
+        },
+        [](bool capture) { return std::vector<std::string>{"null"}; },
+        []() { return true; },
+    },
 };
 
 const SinkDetails& GetOutputSinkDetails(std::string_view sink_id) {
@@ -71,18 +73,21 @@ const SinkDetails& GetOutputSinkDetails(std::string_view sink_id) {
     auto iter = find_backend(sink_id);
 
     if (sink_id == "auto") {
-        // Auto-select a backend. Prefer CubeB, but it may report a large minimum latency which
-        // causes audio issues, in that case go with SDL.
-#if defined(HAVE_CUBEB) && defined(HAVE_SDL2)
-        iter = find_backend("cubeb");
-        if (iter->latency() > TargetSampleCount * 3) {
-            iter = find_backend("sdl2");
+        // Auto-select a backend. Use the sink details ordering, preferring cubeb first, checking
+        // that the backend is available and suitable to use.
+    for (auto& details : sink_details) {
+            if (details.is_suitable()) {
+                iter = &details;
+                break;
+            }
         }
-#else
-        iter = std::begin(sink_details);
-#endif
+
         LOG_INFO(Service_Audio, "Auto-selecting the {} backend", iter->id);
-    }
+    } else {
+        if (iter != std::end(sink_details) && !iter->is_suitable()) {
+            LOG_ERROR(Service_Audio, "Selected backend {} is not suitable, falling back to null", iter->id);
+                iter = find_backend("null");
+     }
 
     if (iter == std::end(sink_details)) {
         LOG_ERROR(Audio, "Invalid sink_id {}", sink_id);
