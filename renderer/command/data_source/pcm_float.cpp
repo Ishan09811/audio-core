@@ -19,6 +19,12 @@ void PcmFloatDataSourceVersion1Command::Dump(const ADSP::CommandListProcessor& p
 void PcmFloatDataSourceVersion1Command::Process(const ADSP::CommandListProcessor& processor) {
     auto out_buffer = processor.mix_buffers.subspan(output_index * processor.sample_count,
                                                     processor.sample_count);
+  for (auto& wave_buffer : wave_buffers) {
+        wave_buffer.loop_start_offset = wave_buffer.start_offset;
+        wave_buffer.loop_end_offset = wave_buffer.end_offset;
+        wave_buffer.loop_count = wave_buffer.loop ? -1 : 0;
+    }
+  
 
     DecodeFromWaveBuffersArgs args{
         .sample_format{SampleFormat::PcmFloat},
