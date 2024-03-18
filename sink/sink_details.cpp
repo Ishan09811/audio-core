@@ -57,10 +57,11 @@ constexpr SinkDetails sink_details[] = {
 #endif
     SinkDetails{"null",
                 [](std::string_view device_id) -> std::unique_ptr<Sink> {
-                    return std::make_unique<NullSink>(device_id);
-                },
-                [](bool capture) { return std::vector<std::string>{"null"}; }, []() { return true; },
-},
+            return std::make_unique<NullSink>(device_id);
+        },
+        [](bool capture) { return std::vector<std::string>{"null"}; },
+        []() { return true; },
+    },
 };
 
 const SinkDetails& GetOutputSinkDetails(std::string_view sink_id) {
