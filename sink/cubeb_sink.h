@@ -97,11 +97,10 @@ private:
 std::vector<std::string> ListCubebSinkDevices(bool capture);
 
 /**
- * Check if this backend is suitable for use.
- * Checks if enabled, its latency, whether it opens successfully, etc.
+ * Get the reported latency for this sink.
  *
- * @return True is this backend is suitable, false otherwise.
+ * @return Minimum latency for this sink.
  */
-bool IsCubebSuitable();
+u32 GetCubebLatency();
 
 } // namespace AudioCore::Sink
