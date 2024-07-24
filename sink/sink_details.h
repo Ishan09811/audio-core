@@ -14,6 +14,8 @@ namespace Sink {
 
 class Sink;
 
+extern std::string AudioSink;
+
 /**
  * Retrieves the IDs for all available audio sinks.
  *

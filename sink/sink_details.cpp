@@ -17,6 +17,9 @@
 #include <audio_core/common/logging/log.h>
 
 namespace AudioCore::Sink {
+    
+std::string AudioSink = "";
+
 namespace {
 struct SinkDetails {
     using FactoryFn = std::unique_ptr<Sink> (*)(std::string_view);
@@ -32,6 +35,8 @@ struct SinkDetails {
     /// Method to get the latency of this backend.
     LatencyFn latency;
 };
+
+
 
 // sink_details is ordered in terms of desirability, with the best choice at the top.
 constexpr SinkDetails sink_details[] = {
@@ -70,19 +75,25 @@ const SinkDetails& GetOutputSinkDetails(std::string_view sink_id) {
 
     auto iter = find_backend(sink_id);
 
-    if (sink_id == "auto") {
         // Auto-select a backend. Prefer CubeB, but it may report a large minimum latency which
         // causes audio issues, in that case go with SDL.
 #if defined(HAVE_CUBEB) && defined(HAVE_SDL2)
-        iter = find_backend("cubeb");
-        if (iter->latency() > TargetSampleCount * 3) {
-            iter = find_backend("sdl2");
+        if (AudioSink == "auto") {
+            iter = find_backend("cubeb");
+            if (iter->latency() > TargetSampleCount * 3) {
+                iter = find_backend("sdl2");
+            }    
+        } else {
+            iter = find_backend(AudioSink);
         }
 #else
         iter = std::begin(sink_details);
 #endif
-        LOG_INFO(Service_Audio, "Auto-selecting the {} backend", iter->id);
-    }
+        if (AudioSink == "auto") {
+            LOG_INFO(Service_Audio, "Auto-selecting the {} backend", iter->id);
+        } else { 
+            LOG_INFO(Service_Audio, "Manually selected the {} backend", iter->id);
+        }
 
     if (iter == std::end(sink_details)) {
         LOG_ERROR(Audio, "Invalid sink_id {}", sink_id);
