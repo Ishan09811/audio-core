@@ -77,7 +77,6 @@ const SinkDetails& GetOutputSinkDetails(std::string_view sink_id) {
 
         // Auto-select a backend. Prefer CubeB, but it may report a large minimum latency which
         // causes audio issues, in that case go with SDL.
-#if defined(HAVE_CUBEB) && defined(HAVE_SDL2)
         if (AudioSink == "auto") {
             iter = find_backend("cubeb");
             if (iter->latency() > TargetSampleCount * 3) {
@@ -86,9 +85,7 @@ const SinkDetails& GetOutputSinkDetails(std::string_view sink_id) {
         } else {
             iter = find_backend(AudioSink);
         }
-#else
-        iter = std::begin(sink_details);
-#endif
+    
         if (AudioSink == "auto") {
             LOG_INFO(Service_Audio, "Auto-selecting the {} backend", iter->id);
         } else { 
