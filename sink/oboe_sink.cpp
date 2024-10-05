@@ -157,4 +157,16 @@ void OboeSink::SetSystemVolume(f32 volume) {
     }
 }
 
+u32 GetOboeLatency() {
+    for (auto& stream : sink_streams) {
+        int32_t buffer_size = stream->getBufferSizeInFrames();
+        int32_t sample_rate = stream->getSampleRate();
+
+        if (sample_rate > 0) {
+            return static_cast<u32>((buffer_size * 1000) / sample_rate);  // Latency in ms
+        }
+        return 0;
+    }
+}
+
 } // namespace AudioCore::Sink
