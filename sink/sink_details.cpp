@@ -10,6 +10,7 @@
 #ifdef HAVE_CUBEB
 #include <audio_core/sink/cubeb_sink.h>
 #endif
+#include <audio_core/sink/oboe_sink.h>
 #ifdef HAVE_SDL2
 #include <audio_core/sink/sdl2_sink.h>
 #endif
@@ -50,6 +51,14 @@ constexpr SinkDetails sink_details[] = {
         &GetCubebLatency,
     },
 #endif
+    SinkDetails{
+        "oboe",
+        [](std::string_view device_id) -> std::unique_ptr<Sink> {
+            return std::make_unique<OboeSink>(device_id);
+        },
+        &ListOboeSinkDevices,
+        &GetOboeLatency,
+    }, 
 #ifdef HAVE_SDL2
     SinkDetails{
         "sdl2",
