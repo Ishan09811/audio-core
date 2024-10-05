@@ -218,8 +218,10 @@ target_link_libraries(audio_core PUBLIC fmt::fmt)
 target_sources(audio_core PRIVATE
     sink/cubeb_sink.cpp
     sink/cubeb_sink.h
+    sink/oboe_sink.cpp
+    sink/oboe_sink.h
 )
 
 target_include_directories(audio_core PRIVATE "include")
-target_link_libraries(audio_core PRIVATE cubeb)
+target_link_libraries(audio_core PRIVATE cubeb oboe)
 target_compile_definitions(audio_core PRIVATE -DHAVE_CUBEB=1)
