@@ -138,12 +138,17 @@ void OboeSink::CloseStreams() {
 }
 
 f32 OboeSink::GetDeviceVolume() const {
-    // Volume control isn't handled in this implementation
-    return 1.0f;
+    if (sink_streams.empty()) {
+        return 1.0f;
+    }
+
+    return sink_streams.front()->GetDeviceVolume();
 }
 
 void OboeSink::SetDeviceVolume(f32 volume) {
-    // Volume control isn't handled in this implementation
+    for (auto& stream : sink_streams) {
+        stream->SetDeviceVolume(volume);
+    }
 }
 
 void OboeSink::SetSystemVolume(f32 volume) {
