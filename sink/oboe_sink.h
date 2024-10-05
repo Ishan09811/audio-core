@@ -35,8 +35,6 @@ public:
     void SetDeviceVolume(f32 volume) override;
     void SetSystemVolume(f32 volume) override;
 
-    u32 GetOboeLatency();
-
 private:
     /// Vector of streams managed by this sink
     std::vector<SinkStreamPtr> sink_streams{};
