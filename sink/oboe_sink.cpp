@@ -37,11 +37,15 @@ public:
 
         oboe::AudioStreamBuilder builder;
         builder.setDirection(type_ == StreamType::In ? oboe::Direction::Input : oboe::Direction::Output)
-               .setChannelCount(device_channels_)
-               .setSampleRate(TargetSampleRate)
-               .setFormat(oboe::AudioFormat::I16)
-               .setPerformanceMode(oboe::PerformanceMode::LowLatency)
-               .setCallback(this);
+               ->setChannelCount(device_channels_)
+               ->setSampleRate(TargetSampleRate)
+               ->setSampleRateConversionQuality(oboe::SampleRateConversionQuality::High)
+               ->setFormat(oboe::AudioFormat::I16)
+               ->setFormatConversionAllowed(true)
+               ->setPerformanceMode(oboe::PerformanceMode::LowLatency)
+               ->setUsage(oboe::Usage::Game)
+               ->setBufferCapacityInFrames(TargetSampleCount * 2)
+               ->setCallback(this);
 
         oboe::Result result = builder.openStream(&stream);
         if (result != oboe::Result::OK) {
@@ -154,18 +158,6 @@ void OboeSink::SetDeviceVolume(f32 volume) {
 void OboeSink::SetSystemVolume(f32 volume) {
     for (auto& stream : sink_streams) {
         stream->SetSystemVolume(volume);
-    }
-}
-
-u32 GetOboeLatency() {
-    for (auto& stream : sink_streams) {
-        int32_t buffer_size = stream->getBufferSizeInFrames();
-        int32_t sample_rate = stream->getSampleRate();
-
-        if (sample_rate > 0) {
-            return static_cast<u32>((buffer_size * 1000) / sample_rate);  // Latency in ms
-        }
-        return 0;
     }
 }
 
