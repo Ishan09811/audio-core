@@ -56,7 +56,7 @@ constexpr SinkDetails sink_details[] = {
         [](std::string_view device_id) -> std::unique_ptr<Sink> {
             return std::make_unique<OboeSink>(device_id);
         },
-        &ListOboeSinkDevices,
+        [](bool capture) { return std::vector<std::string>{"Default"}; },
         &GetOboeLatency,
     }, 
 #ifdef HAVE_SDL2
