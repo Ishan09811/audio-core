@@ -4,12 +4,13 @@
 #pragma once
 
 #include <audio_core/common/common_types.h>
+#include <unistd.h>
 #include "hle/kernel/k_process.h"
 
 namespace Core::Memory {
 constexpr std::size_t YUZU_PAGEBITS = 12;
-constexpr u64 YUZU_PAGESIZE = 1ULL << YUZU_PAGEBITS;
-constexpr u64 YUZU_PAGEMASK = YUZU_PAGESIZE - 1;
+const u64 YUZU_PAGESIZE = getpagesize();
+const u64 YUZU_PAGEMASK = YUZU_PAGESIZE - 1;
 
 /// Central class that handles all memory operations and state.
 class Memory {
